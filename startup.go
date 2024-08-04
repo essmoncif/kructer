@@ -8,6 +8,7 @@ import (
 	"kructer.com/config"
 	"kructer.com/internal/context"
 	"kructer.com/internal/core"
+	"kructer.com/internal/core/errors"
 	midd "kructer.com/internal/middleware"
 )
 
@@ -24,6 +25,8 @@ func Bootstrap() {
 		Config: config,
 	}
 
+	server.SetHTTPErrorHandler(errors.HTTPErrorHandler)
+
 	server.AddMiddleware(middleware.Logger())
 	server.AddMiddleware(middleware.Recover())
 	server.AddMiddleware(middleware.BodyLimit("5M"))
@@ -35,5 +38,11 @@ func Bootstrap() {
 	}))
 	server.AddMiddleware(midd.KructerContextMiddleware(&cc))
 
-	server.Run()
+	go func() {
+		if err := server.Run(); err != nil {
+			server.Server.Logger.Fatal("shutting down the server")
+		}
+	}()
+
+	server.GracefulShutdown()
 }
