@@ -8,6 +8,7 @@ import (
 type Configuration struct {
 	Address          string `env:"ADDRESS" envDefault:":8080"`
 	ConnectionString string `env:"CONNECTION_STRING,required"`
+	Dialect          string `env:"DIALECT,required" envDefault:"postgres"`
 }
 
 func New(files ...string) (*Configuration, error) {
