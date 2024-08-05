@@ -10,6 +10,7 @@ import (
 	"kructer.com/internal/core"
 	"kructer.com/internal/core/errors"
 	midd "kructer.com/internal/middleware"
+	"kructer.com/internal/routes"
 )
 
 func Bootstrap() {
@@ -23,6 +24,7 @@ func Bootstrap() {
 
 	cc := context.KructerContext{
 		Config: config,
+		DB:     server.GetDB(),
 	}
 
 	server.SetHTTPErrorHandler(errors.HTTPErrorHandler)
@@ -37,6 +39,10 @@ func Bootstrap() {
 		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
 	}))
 	server.AddMiddleware(midd.KructerContextMiddleware(&cc))
+
+	routes.InitRoutes(server.Server, server.GetDB())
+
+	server.Server.HideBanner = true
 
 	go func() {
 		if err := server.Run(); err != nil {
