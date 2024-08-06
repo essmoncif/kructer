@@ -11,4 +11,5 @@ func InitUserRoutes(e *echo.Echo, db *gorm.DB) {
 
 	userGroup := e.Group("/api/users")
 	userGroup.POST("", userCtrl.CreateUser)
+	userGroup.POST("/login", userCtrl.Login)
 }

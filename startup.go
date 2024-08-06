@@ -10,6 +10,7 @@ import (
 	"kructer.com/internal/core"
 	"kructer.com/internal/core/errors"
 	midd "kructer.com/internal/middleware"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"kructer.com/internal/routes"
 )
 
@@ -27,6 +28,11 @@ func Bootstrap() {
 		DB:     server.GetDB(),
 	}
 
+	jwtConfig := echojwt.Config{
+		SigningKey: []byte("secret"),
+		Skipper:    midd.SkipperJwtFn([]string{"/api/users/login"}),
+	}
+
 	server.SetHTTPErrorHandler(errors.HTTPErrorHandler)
 
 	server.AddMiddleware(middleware.Logger())
@@ -38,6 +44,7 @@ func Bootstrap() {
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
 	}))
+	server.AddMiddleware(echojwt.WithConfig(jwtConfig))
 	server.AddMiddleware(midd.KructerContextMiddleware(&cc))
 
 	routes.InitRoutes(server.Server, server.GetDB())

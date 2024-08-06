@@ -27,6 +27,15 @@ func (us *UserStore) FindByID(id string) (*User, error) {
 	return &user, nil
 }
 
+func (us *UserStore) FindUserByLogin(login string) (*User, error) {
+	var user User
+	result := us.DB.First(&user, "login = ?", login)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
+}
+
 func (us *UserStore) GetUsersWithPagination(page, pageSize int) ([]User, int64, error) {
 	var users []User
 	var totalRows int64
